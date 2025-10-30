@@ -22,18 +22,23 @@ DadosEntrada* lerArquivo(const char* nomeArquivo) {
         &dados->altura, &dados->largura, 
         &dados->F_inicial, &dados->D, &dados->N);
 
+    dados->mapas = malloc(2 * sizeof(char***));
     //aloca espaço para dois mapas: presente e passado
-    dados->mapas = malloc(2 * sizeof(char**));
     for (int t = 0; t < 2; t++) {
-        dados->mapas[t] = malloc(dados->altura * sizeof(char*));
-        for (int i = 0; i < dados->altura; i++)
-            dados->mapas[t][i] = malloc((dados->largura * 4) * sizeof(char)); // 3 chars + espaço
+        // Aloca o Nível 3 (ponteiro para as linhas)
+        dados->mapas[t] = malloc(dados->altura * sizeof(char**));
+
+        // Aloca o Nível 2 (ponteiro para as colunas)
+        for (int i = 0; i < dados->altura; i++) {
+            dados->mapas[t][i] = malloc(dados->largura * sizeof(char*));
+        }
     }
 
     //lê mapa do presente
     for (int i = 0; i < dados->altura; i++) {
         for (int j = 0; j < dados->largura; j++) {
-            fscanf(arq, "%s", &dados->mapas[PRESENTE][i][j*4]);
+            dados->mapas[PRESENTE][i][j] = malloc(4 * sizeof(char));
+            fscanf(arq, "%s", dados->mapas[PRESENTE][i][j]);
         }
     }
 
@@ -44,7 +49,8 @@ DadosEntrada* lerArquivo(const char* nomeArquivo) {
     //lê mapa do passado
     for (int i = 0; i < dados->altura; i++) {
         for (int j = 0; j < dados->largura; j++) {
-            fscanf(arq, "%s", &dados->mapas[PASSADO][i][j*4]);
+            dados->mapas[PASSADO][i][j] = malloc(4 * sizeof(char));
+            fscanf(arq, "%s", dados->mapas[PASSADO][i][j]);
         }
     }
 
@@ -63,7 +69,7 @@ void imprimirMapas(DadosEntrada* d) {
         printf(MAGENTA "\n--- %s ---\n" RESET, nomes[t]);
         for (int i = 0; i < d->altura; i++) {
             for (int j = 0; j < d->largura; j++) {
-                char* cel = &d->mapas[t][i][j*4];
+                char* cel = d->mapas[t][i][j];
                 if (strcmp(cel, "***") == 0)
                     printf(RED "*** " RESET);
                 else if (strcmp(cel, "000") == 0)
@@ -78,13 +84,24 @@ void imprimirMapas(DadosEntrada* d) {
     }
 }
 
+// CORREÇÃO: Libera todos os 4 níveis
 void liberarDados(DadosEntrada* d) {
     if (!d) return;
+
     for (int t = 0; t < 2; t++) {
-        for (int i = 0; i < d->altura; i++)
+        for (int i = 0; i < d->altura; i++) {
+            // Nível 1: Libera as strings ("AAA", "010", etc.)
+            for (int j = 0; j < d->largura; j++) {
+                free(d->mapas[t][i][j]);
+            }
+            // Nível 2: Libera o array de colunas
             free(d->mapas[t][i]);
+        }
+        // Nível 3: Libera o array de linhas
         free(d->mapas[t]);
     }
+    // Nível 4: Libera o array de mapas
     free(d->mapas);
+    // Libera a struct principal
     free(d);
 }
