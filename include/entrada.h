@@ -1,5 +1,6 @@
 #ifndef ENTRADA_H
 #define ENTRADA_H
+#include <time.h>
 
 // Códigos ANSI de cor
 #define RESET   "\033[0m"
@@ -30,5 +31,7 @@ typedef enum {
 DadosEntrada* lerArquivo(const char* nomeArquivo);
 void liberarDados(DadosEntrada* d);
 void imprimirMapas(DadosEntrada* d);
+void gerarCelula(char* celula, int dificuldade);
+char* gerarArquivoEntrada();
 
 #endif

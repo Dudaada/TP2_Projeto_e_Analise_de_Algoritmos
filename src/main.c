@@ -15,8 +15,9 @@ int main() {
     do {
         printf(MAGENTA "\n===== MENU PRINCIPAL =====\n" RESET);
         printf("1. Carregar mapa\n");
-        printf("2. Exibir mapa atual\n");
-        printf("3. Calcular melhor caminho\n");
+        printf("2. Gerar mapa automaticamente\n");
+        printf("3. Exibir mapa atual\n");
+        printf("4. Calcular melhor caminho\n");
         printf("0. Sair\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
@@ -28,7 +29,6 @@ int main() {
                 printf("Digite o nome do arquivo de entrada (ex: testes/mapa1.txt): ");
                 scanf("%199s", nomeArquivoCarregado);
 
-                // Se já existir um mapa carregado, libera antes de carregar um novo
                 if (mapa_atual != NULL) {
                     liberarDados(mapa_atual);
                     mapa_atual = NULL;
@@ -38,7 +38,7 @@ int main() {
 
                 if (mapa_atual != NULL) {
                     printf(GREEN "\nMapa '%s' carregado com sucesso!\n" RESET, nomeArquivoCarregado);
-                    imprimirMapas(mapa_atual); // Mostra o mapa para o usuário confirmar
+                    imprimirMapas(mapa_atual);
                 }
 
                 printf("\nPressione Enter para voltar ao menu principal...");
@@ -47,6 +47,28 @@ int main() {
             }
 
             case 2: {
+                printf("\n--- Gerar Mapa Automaticamente ---\n");
+                char* arquivoGerado = gerarArquivoEntrada(); // chama função e recebe nome
+
+                if (arquivoGerado != NULL) {
+                    if (mapa_atual != NULL) {
+                        liberarDados(mapa_atual);
+                        mapa_atual = NULL;
+                    }
+
+                    mapa_atual = lerArquivo(arquivoGerado);
+                    if (mapa_atual != NULL) {
+                        printf(GREEN "\nMapa '%s' carregado automaticamente!\n" RESET, arquivoGerado);
+                        imprimirMapas(mapa_atual);
+                    }
+                }
+
+                printf("\nPressione Enter para voltar ao menu principal...");
+                while (getchar() != '\n');
+                break;
+            }
+
+            case 3: {
                 if (mapa_atual != NULL) {
                     imprimirMapas(mapa_atual);
                 } else {
@@ -58,9 +80,9 @@ int main() {
                 break;
             }
 
-            case 3: {
+            case 4: {
                 if (mapa_atual == NULL) {
-                    printf(RED "\nNenhum mapa carregado! Use a opcao 1 primeiro.\n" RESET);
+                    printf(RED "\nNenhum mapa carregado! Use a opcao 1 ou 2 primeiro.\n" RESET);
                 } else {
                     printf(CYAN "\n--- Calculando melhor caminho... ---\n" RESET);
                     calcularCaminho(mapa_atual);

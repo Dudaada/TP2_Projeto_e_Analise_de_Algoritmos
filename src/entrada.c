@@ -105,3 +105,95 @@ void liberarDados(DadosEntrada* d) {
     // Libera a struct principal
     free(d);
 }
+
+void gerarCelula(char* celula, int dificuldade) {
+    int r = rand() % 100;
+
+    switch (dificuldade) {
+        case 1: // fácil
+            if (r < 60) strcpy(celula, "000");
+            else if (r < 85) strcpy(celula, "AAA");
+            else strcpy(celula, "***");
+            break;
+        case 2: // médio
+            if (r < 40) strcpy(celula, "000");
+            else if (r < 70) strcpy(celula, "AAA");
+            else strcpy(celula, "***");
+            break;
+        case 3: // difícil
+            if (r < 25) strcpy(celula, "000");
+            else if (r < 55) strcpy(celula, "AAA");
+            else strcpy(celula, "***");
+            break;
+        default:
+            strcpy(celula, "000");
+    }
+}
+
+char* gerarArquivoEntrada() {
+    srand(time(NULL));
+
+    static char nomeArquivo[200]; // static para poder retornar o ponteiro
+
+    int altura, largura, F_inicial, D, N, dificuldade;
+
+    printf("\n--- GERADOR DE ARQUIVOS DE ENTRADA ---\n");
+
+    printf("Nome do arquivo de saida (ex: testes/mapa1.txt): ");
+    scanf("%199s", nomeArquivo);
+
+    printf("Altura do mapa: ");
+    scanf("%d", &altura);
+
+    printf("Largura do mapa: ");
+    scanf("%d", &largura);
+
+    printf("Força inicial (F): ");
+    scanf("%d", &F_inicial);
+
+    printf("Descanso (D): ");
+    scanf("%d", &D);
+
+    printf("Força de Nikador (N): ");
+    scanf("%d", &N);
+
+    printf("Dificuldade (1=facil, 2=medio, 3=dificil): ");
+    scanf("%d", &dificuldade);
+
+    FILE* arq = fopen(nomeArquivo, "w");
+    if (!arq) {
+        printf(RED "Erro ao criar o arquivo!\n" RESET);
+        return NULL;
+    }
+
+    // Cabeçalho
+    fprintf(arq, "%d %d %d %d %d\n", altura, largura, F_inicial, D, N);
+
+    char celula[4];
+
+    // Gera mapa do PRESENTE
+    for (int i = 0; i < altura; i++) {
+        for (int j = 0; j < largura; j++) {
+            gerarCelula(celula, dificuldade);
+            fprintf(arq, "%s ", celula);
+        }
+        fprintf(arq, "\n");
+    }
+
+    // Separador
+    fprintf(arq, "///\n");
+
+    // Gera mapa do PASSADO
+    for (int i = 0; i < altura; i++) {
+        for (int j = 0; j < largura; j++) {
+            gerarCelula(celula, dificuldade);
+            fprintf(arq, "%s ", celula);
+        }
+        fprintf(arq, "\n");
+    }
+
+    fclose(arq);
+    printf(GREEN "\nArquivo '%s' gerado com sucesso!\n" RESET, nomeArquivo);
+
+    return nomeArquivo; // retorna o nome do arquivo gerado
+}
