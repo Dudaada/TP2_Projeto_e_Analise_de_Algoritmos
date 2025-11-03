@@ -1,33 +1,31 @@
 # Compilador e flags
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -Iinclude
 
-# Pastas
-INCLUDE = include
-SRC = src
-TESTE = testes
+# Diretórios
+SRC_DIR = src
+OBJ_DIR = $(SRC_DIR)
+BIN = programa
 
-# Arquivos
-OBJS = $(SRC)/entrada.o main.o
-EXEC = tp2
+# Arquivos fonte e objetos
+SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/entrada.c $(SRC_DIR)/Caminho.c
+OBJS = $(SRCS:.c=.o)
 
 # Regra padrão
-all: $(EXEC)
+all: $(BIN)
 
-$(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) -I$(INCLUDE) $(OBJS) -o $(EXEC)
+# Linkagem final
+$(BIN): $(OBJS)
+	$(CC) $(CFLAGS) -o $(BIN) $(OBJS)
 
-$(SRC)/entrada.o: $(SRC)/entrada.c $(INCLUDE)/entrada.h
-	$(CC) $(CFLAGS) -I$(INCLUDE) -c $(SRC)/entrada.c -o $(SRC)/entrada.o
+# Compilação dos .c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-main.o: main.c $(INCLUDE)/entrada.h
-	$(CC) $(CFLAGS) -I$(INCLUDE) -c main.c -o main.o
+# Executar com arquivo de teste
+run: $(BIN)
+	./$(BIN) testes/mapa1.txt
 
-# Executa com um arquivo de teste
-# Exemplo: make run ARQ=testes/mapa1.txt
-run: all
-	./$(EXEC) $(ARQ)
-
-# Limpa tudo
+# Limpar arquivos compilados
 clean:
-	rm -f $(SRC)/*.o *.o $(EXEC)
+	rm -f $(OBJ_DIR)/*.o $(BIN)
