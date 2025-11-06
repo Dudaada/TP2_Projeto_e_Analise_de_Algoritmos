@@ -172,10 +172,13 @@ void calcularCaminho(DadosEntrada* mapas){
 void ImprimirCaminho(DadosEntrada* mapas, int altura, int largura,int linhaAnterior[][altura][largura],
                     int mapaAnterior[][altura][largura],  int mapaFinal, int linhaFinal, int colunaFinal) {
 
+
     // array temporario para guarda o caminho
     int caminhoLinhas[mapas->largura];
+    int caminhoMapas[mapas->largura]; // guarda o mapa (0 ou 1)
 
-    // 2. Reconstruir o caminho DE TRÁS PARA FRENTE
+
+    // Reconstroi o caminho de tras para frente
     int mapaAtual = mapaFinal;
     int linhaAtual = linhaFinal;
 
@@ -183,6 +186,8 @@ void ImprimirCaminho(DadosEntrada* mapas, int altura, int largura,int linhaAnter
     for (int x = colunaFinal; x >= 0; x--) {
 
         caminhoLinhas[x] = linhaAtual;
+        caminhoMapas[x] = mapaAtual; // mapa guardado
+        
         if (x > 0) {
             int k_ant = mapaAnterior[mapaAtual][linhaAtual][x];
             int y_ant = linhaAnterior[mapaAtual][linhaAtual][x];
@@ -190,11 +195,15 @@ void ImprimirCaminho(DadosEntrada* mapas, int altura, int largura,int linhaAnter
             linhaAtual = y_ant;
         }
     }
-    //imprime
+   // Coordenadas)
+    printf(CYAN "\n--- Coordenadas do Caminho ---\n" RESET);
     for (int x = 0; x <= colunaFinal; x++) {
         // Formato: (linha) (coluna)
         printf("%d %d\n", caminhoLinhas[x], x);
     }
+    
+    // extra 2: Imprime o gráfico do caminho
+    imprimirGrafico(mapas, caminhoLinhas, caminhoMapas, largura);
 }
 
 void RespostaFinal(int forcaFinal, int linhaFinal, int mapaFinal, int colunaFinal, DadosEntrada* mapas,
@@ -210,6 +219,48 @@ void RespostaFinal(int forcaFinal, int linhaFinal, int mapaFinal, int colunaFina
         }
         else {
             printf("Será necessário mais planejamento para parar a calamidade\n");
+        }
+    }
+}
+
+/* * Nova funçao para o extra 2
+ * Imprime os mapas com o caminho destacado em azul.
+ */
+
+void imprimirGrafico(DadosEntrada* mapas, int* caminhoLinhas, int* caminhoMapas, int largura) {
+    
+    const char* nomes[] = {"Mapa do Presente", "Mapa do Passado"};
+
+    //(t = 0 é Presente, t = 1 é Passado)
+    for (int t = 0; t < 2; t++) {
+        printf(MAGENTA "\n--- %s (Caminho Gráfico) ---\n" RESET, nomes[t]);
+
+        for (int i = 0; i < mapas->altura; i++) {
+            
+            for (int j = 0; j < largura; j++) {
+                
+                char* cel = mapas->mapas[t][i][j];
+                
+                // O caminho está neste mapa (t) E nesta linha (i) E nesta coluna (j)?
+                if (caminhoMapas[j] == t && caminhoLinhas[j] == i) {
+                    
+                    // Se sim, imprime destacado em azul
+                    printf(BLUE "[%s]" RESET, cel);
+
+                } else {
+                    
+                    // Se não, imprime normalmente
+                    if (strcmp(cel, "***") == 0)
+                        printf(RED " %s " RESET, cel);
+                    else if (strcmp(cel, "000") == 0)
+                        printf(GREEN " %s " RESET, cel);
+                    else if (strcmp(cel, "AAA") == 0)
+                        printf(YELLOW " %s " RESET, cel);
+                    else
+                        printf(WHITE " %s " RESET, cel);
+                }
+            }
+            printf("\n"); 
         }
     }
 }

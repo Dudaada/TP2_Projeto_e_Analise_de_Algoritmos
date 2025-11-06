@@ -4,107 +4,157 @@
 #include "../include/entrada.h"
 #include "../include/Caminho.h"
 
-int main() {
+int main(int argc, char *argv[]) {
     DadosEntrada* mapa_atual = NULL;
     char nomeArquivoCarregado[200];
     int opcao = 0;
 
-    printf(CYAN "\n=== Bem-vindo(a) a Jornada contra Nikador! ===\n" RESET);
-    printf("Prepare-se para carregar o mapa e iniciar sua aventura.\n");
+    if (argc > 1) {
+        //o usuário passou um arquivo
+        printf(CYAN "Modo de execucao direta...\n" RESET);
+        printf("Carregando mapa de: %s\n", argv[1]);
 
-    do {
-        printf(MAGENTA "\n===== MENU PRINCIPAL =====\n" RESET);
-        printf("1. Carregar mapa\n");
-        printf("2. Gerar mapa automaticamente\n");
-        printf("3. Exibir mapa atual\n");
-        printf("4. Calcular melhor caminho\n");
-        printf("0. Sair\n");
-        printf("Escolha uma opcao: ");
-        scanf("%d", &opcao);
-        getchar(); // consome o '\n' após o número
+        mapa_atual = lerArquivo(argv[1]); 
 
-        switch (opcao) {
-            case 1: {
-                printf("\n--- Carregar Mapa ---\n");
-                printf("Digite o nome do arquivo de entrada (ex: testes/mapa1.txt): ");
-                scanf("%199s", nomeArquivoCarregado);
+        if (mapa_atual == NULL) {
+            printf(RED "Falha ao carregar o mapa. Encerrando.\n" RESET);
+            return 1; 
+        }
 
-                if (mapa_atual != NULL) {
-                    liberarDados(mapa_atual);
-                    mapa_atual = NULL;
-                }
+        // Se carregou, calcula o caminho imediatamente
+        printf(CYAN "\n--- Calculando melhor caminho... ---\n" RESET);
+        calcularCaminho(mapa_atual);
 
-                mapa_atual = lerArquivo(nomeArquivoCarregado);
+        liberarDados(mapa_atual);
+        return 0; 
 
-                if (mapa_atual != NULL) {
-                    printf(GREEN "\nMapa '%s' carregado com sucesso!\n" RESET, nomeArquivoCarregado);
-                    imprimirMapas(mapa_atual);
-                }
+    }
 
-                printf("\nPressione Enter para voltar ao menu principal...");
-                while (getchar() != '\n');
-                break;
+    else {
+
+        printf(CYAN "\n=== Bem-vindo(a) a Jornada contra Nikador! ===\n" RESET);
+        printf("Prepare-se para carregar o mapa e iniciar sua aventura.\n");
+
+        do {
+            printf(MAGENTA "\n===== MENU PRINCIPAL =====\n" RESET);
+            printf("1. Carregar mapa\n");
+            printf("2. Gerar mapa automaticamente\n");
+            printf("3. Exibir mapa atual\n");
+            printf("4. Calcular melhor caminho\n");
+            printf("0. Sair\n");
+            printf("Escolha uma opcao: ");
+            fflush(stdout);
+            
+
+            char buffer_input[100];
+            if (fgets(buffer_input, sizeof(buffer_input), stdin) != NULL) {
+                sscanf(buffer_input, "%d", &opcao);
+            } else {
+                opcao = 0; 
             }
 
-            case 2: {
-                printf("\n--- Gerar Mapa Automaticamente ---\n");
-                char* arquivoGerado = gerarArquivoEntrada(); // chama função e recebe nome
+            switch (opcao) {
+                case 1: {
+                    printf("\n--- Carregar Mapa ---\n");
+                    printf("Digite o nome do arquivo de entrada (ex: testes/mapa1.txt): ");
+                    fflush(stdout);
 
-                if (arquivoGerado != NULL) {
+                    if (fgets(nomeArquivoCarregado, sizeof(nomeArquivoCarregado), stdin) != NULL) {
+                        // Remove o '\n' que o fgets captura
+                        nomeArquivoCarregado[strcspn(nomeArquivoCarregado, "\n")] = 0; 
+                    }
+
+
                     if (mapa_atual != NULL) {
                         liberarDados(mapa_atual);
                         mapa_atual = NULL;
                     }
 
-                    mapa_atual = lerArquivo(arquivoGerado);
+                    mapa_atual = lerArquivo(nomeArquivoCarregado);
+
                     if (mapa_atual != NULL) {
-                        printf(GREEN "\nMapa '%s' carregado automaticamente!\n" RESET, arquivoGerado);
+                        printf(GREEN "\nMapa '%s' carregado com sucesso!\n" RESET, nomeArquivoCarregado);
                         imprimirMapas(mapa_atual);
                     }
+
+                    printf("\nPressione Enter para voltar ao menu principal...");
+                    fflush(stdout); 
+                    getchar(); 
+                    break;
                 }
 
-                printf("\nPressione Enter para voltar ao menu principal...");
-                while (getchar() != '\n');
-                break;
+
+                case 2: {
+                    printf("\n--- Gerar Mapa Automaticamente ---\n");
+                    char* arquivoGerado = gerarArquivoEntrada(); // chama função e recebe nome
+
+                    if (arquivoGerado != NULL) {
+                        strncpy(nomeArquivoCarregado, arquivoGerado, sizeof(nomeArquivoCarregado) - 1);
+                        nomeArquivoCarregado[sizeof(nomeArquivoCarregado) - 1] = '\0'; // Garante terminação nula
+
+                        if (mapa_atual != NULL) {
+                            liberarDados(mapa_atual);
+                            mapa_atual = NULL;
+                        }
+
+                        mapa_atual = lerArquivo(arquivoGerado);
+
+                        if (mapa_atual != NULL) {
+                            printf(GREEN "\nMapa '%s' carregado automaticamente!\n" RESET, arquivoGerado);
+                            imprimirMapas(mapa_atual);
+                        }
+                    }
+
+                    printf("\nPressione Enter para voltar ao menu principal...");
+                    fflush(stdout);
+
+                    int c;
+                    while ((c = getchar()) != '\n' && c != EOF); // Limpa o '\n' sujo
+                    getchar(); 
+                    break;
             }
 
-            case 3: {
-                if (mapa_atual != NULL) {
-                    imprimirMapas(mapa_atual);
-                } else {
-                    printf(RED "\nNenhum mapa carregado ainda!\n" RESET);
+                case 3: {
+                    if (mapa_atual != NULL) {
+                        imprimirMapas(mapa_atual);
+                    } else {
+                        printf(RED "\nNenhum mapa carregado ainda!\n" RESET);
+                    }
+
+                    printf("\nPressione Enter para voltar ao menu principal...");
+                    fflush(stdout); 
+                    getchar(); 
+                    break;
+                
                 }
 
-                printf("\nPressione Enter para voltar ao menu principal...");
-                while (getchar() != '\n');
-                break;
-            }
+                case 4: {
+                    if (mapa_atual == NULL) {
+                        printf(RED "\nNenhum mapa carregado! Use a opcao 1 ou 2 primeiro.\n" RESET);
+                    } else {
+                        printf(CYAN "\n--- Calculando melhor caminho... ---\n" RESET);
+                        calcularCaminho(mapa_atual);
+                    }
 
-            case 4: {
-                if (mapa_atual == NULL) {
-                    printf(RED "\nNenhum mapa carregado! Use a opcao 1 ou 2 primeiro.\n" RESET);
-                } else {
-                    printf(CYAN "\n--- Calculando melhor caminho... ---\n" RESET);
-                    calcularCaminho(mapa_atual);
+                    printf("\nPressione Enter para voltar ao menu principal...");
+                    fflush(stdout); 
+                    getchar(); 
+                    break;
                 }
 
-                printf("\nPressione Enter para voltar ao menu principal...");
-                while (getchar() != '\n');
-                break;
+                case 0:
+                    printf(YELLOW "\nEncerrando o programa... Ate a proxima jornada!\n" RESET);
+                    break;
+
+                default:
+                    printf(RED "\nOpcao inválida! Tente novamente.\n" RESET);
             }
 
-            case 0:
-                printf(YELLOW "\nEncerrando o programa... Ate a proxima jornada!\n" RESET);
-                break;
+        } while (opcao != 0);
 
-            default:
-                printf(RED "\nOpcao inválida! Tente novamente.\n" RESET);
-        }
-
-    } while (opcao != 0);
-
-    if (mapa_atual != NULL)
-        liberarDados(mapa_atual);
+        if (mapa_atual != NULL)
+            liberarDados(mapa_atual);
+    }
 
     return 0;
 }
