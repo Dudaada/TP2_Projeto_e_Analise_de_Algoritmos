@@ -210,15 +210,15 @@ void RespostaFinal(int forcaFinal, int linhaFinal, int mapaFinal, int colunaFina
                    int altura, int largura,int linhaAnterior[][altura][largura], int mapaAnterior[][altura][largura]) {
 
     if(forcaFinal == INFINITO || forcaFinal <= 0){
-        printf("A calamidade de Nikador é inevitável\n");
+        printf("A calamidade de Nikador eh inevitavel\n");
     }
     else {
         ImprimirCaminho(mapas, altura, largura, linhaAnterior, mapaAnterior, mapaFinal, linhaFinal, colunaFinal);
         if(forcaFinal >= mapas->N){
-            printf("A ruína de Nikador é iminente\n");
+            printf("A ruina de Nikador eh iminente\n");
         }
         else {
-            printf("Será necessário mais planejamento para parar a calamidade\n");
+            printf("Sera necessario mais planejamento para parar a calamidade\n");
         }
     }
 }
@@ -233,7 +233,7 @@ void imprimirGrafico(DadosEntrada* mapas, int* caminhoLinhas, int* caminhoMapas,
 
     //(t = 0 é Presente, t = 1 é Passado)
     for (int t = 0; t < 2; t++) {
-        printf(MAGENTA "\n--- %s (Caminho Gráfico) ---\n" RESET, nomes[t]);
+        printf(MAGENTA "\n--- %s (Caminho Grafico) ---\n" RESET, nomes[t]);
 
         for (int i = 0; i < mapas->altura; i++) {
             
