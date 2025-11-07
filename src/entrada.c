@@ -148,13 +148,13 @@ char* gerarArquivoEntrada() {
     printf("Largura do mapa: ");
     scanf("%d", &largura);
 
-    printf("Força inicial (F): ");
+    printf("Forca inicial (F): ");
     scanf("%d", &F_inicial);
 
     printf("Descanso (D): ");
     scanf("%d", &D);
 
-    printf("Força de Nikador (N): ");
+    printf("Forca de Nikador (N): ");
     scanf("%d", &N);
 
     printf("Dificuldade (1=facil, 2=medio, 3=dificil): ");
