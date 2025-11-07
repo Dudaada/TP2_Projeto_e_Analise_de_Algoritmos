@@ -22,7 +22,6 @@ typedef struct {
     char ****mapas; // mapas[2][altura][largura*4] (presente e passado)
 } DadosEntrada;
 
-//coloquei pra definir os mapas de presente e passado (sla se é a melhor forma)
 typedef enum {
     PRESENTE = 0,
     PASSADO = 1
