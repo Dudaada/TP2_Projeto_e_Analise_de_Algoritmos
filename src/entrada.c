@@ -108,23 +108,39 @@ void liberarDados(DadosEntrada* d) {
 
 void gerarCelula(char* celula, int dificuldade) {
     int r = rand() % 100;
+    int monstro;
 
     switch (dificuldade) {
         case 1: // fácil
-            if (r < 60) strcpy(celula, "000");
-            else if (r < 85) strcpy(celula, "AAA");
-            else strcpy(celula, "***");
+            if (r < 45) strcpy(celula, "000");            // 45% vazio
+            else if (r < 65) strcpy(celula, "***");       // 20% obstáculo
+            else if (r < 80) strcpy(celula, "AAA");       // 15% âncora
+            else {                                        // 20% monstros
+                monstro = (rand() % 30) + 1;              // força 001–030
+                sprintf(celula, "%03d", monstro);
+            }
             break;
+
         case 2: // médio
-            if (r < 40) strcpy(celula, "000");
-            else if (r < 70) strcpy(celula, "AAA");
-            else strcpy(celula, "***");
+            if (r < 35) strcpy(celula, "000");            // 35% vazio
+            else if (r < 55) strcpy(celula, "***");       // 20% obstáculo
+            else if (r < 70) strcpy(celula, "AAA");       // 15% âncora
+            else {                                        // 30% monstros
+                monstro = (rand() % 300) + 1;             // força 001–300
+                sprintf(celula, "%03d", monstro);
+            }
             break;
+
         case 3: // difícil
-            if (r < 25) strcpy(celula, "000");
-            else if (r < 55) strcpy(celula, "AAA");
-            else strcpy(celula, "***");
+            if (r < 25) strcpy(celula, "000");            // 25% vazio
+            else if (r < 45) strcpy(celula, "***");       // 20% obstáculo
+            else if (r < 60) strcpy(celula, "AAA");       // 15% âncora
+            else {                                        // 40% monstros
+                monstro = (rand() % 999) + 1;             // força 001–999
+                sprintf(celula, "%03d", monstro);
+            }
             break;
+
         default:
             strcpy(celula, "000");
     }
@@ -132,8 +148,7 @@ void gerarCelula(char* celula, int dificuldade) {
 
 char* gerarArquivoEntrada() {
     srand(time(NULL));
-
-    static char nomeArquivo[200]; // static para poder retornar o ponteiro
+    static char nomeArquivo[200];
 
     int altura, largura, F_inicial, D, N, dificuldade;
 
@@ -169,31 +184,62 @@ char* gerarArquivoEntrada() {
     // Cabeçalho
     fprintf(arq, "%d %d %d %d %d\n", altura, largura, F_inicial, D, N);
 
-    char celula[4];
+    // --- GERAÇÃO DO MAPA DO PRESENTE ---
+    char*** mapaPresente = malloc(altura * sizeof(char**));
+    int** ancora = malloc(altura * sizeof(int*)); // matriz de marcação das âncoras
 
-    // Gera mapa do PRESENTE
+    for (int i = 0; i < altura; i++) {
+        mapaPresente[i] = malloc(largura * sizeof(char*));
+        ancora[i] = calloc(largura, sizeof(int)); // inicializa com 0
+    }
+
+    char celula[4];
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
+            mapaPresente[i][j] = malloc(4 * sizeof(char));
             gerarCelula(celula, dificuldade);
+            strcpy(mapaPresente[i][j], celula);
+
+            if (strcmp(celula, "AAA") == 0)
+                ancora[i][j] = 1; // marca posição de âncora
+
             fprintf(arq, "%s ", celula);
         }
         fprintf(arq, "\n");
     }
 
-    // Separador
+    // --- SEPARADOR ---
     fprintf(arq, "///\n");
 
-    // Gera mapa do PASSADO
+    // --- GERAÇÃO DO MAPA DO PASSADO ---
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
-            gerarCelula(celula, dificuldade);
+            if (ancora[i][j]) {
+                // se havia âncora no presente, repete no passado
+                strcpy(celula, "AAA");
+            } else {
+                gerarCelula(celula, dificuldade);
+                // se gerou uma âncora nova no passado, ignora (mantém coerência)
+                if (strcmp(celula, "AAA") == 0)
+                    strcpy(celula, "000");
+            }
             fprintf(arq, "%s ", celula);
         }
         fprintf(arq, "\n");
     }
 
     fclose(arq);
-    printf(GREEN "\nArquivo '%s' gerado com sucesso!\n" RESET, nomeArquivo);
 
-    return nomeArquivo; // retorna o nome do arquivo gerado
+    // Libera memória auxiliar
+    for (int i = 0; i < altura; i++) {
+        for (int j = 0; j < largura; j++)
+            free(mapaPresente[i][j]);
+        free(mapaPresente[i]);
+        free(ancora[i]);
+    }
+    free(mapaPresente);
+    free(ancora);
+
+    printf(GREEN "\nArquivo '%s' gerado com sucesso!\n" RESET, nomeArquivo);
+    return nomeArquivo;
 }
