@@ -22,6 +22,7 @@ DadosEntrada* lerArquivo(const char* nomeArquivo) {
         &dados->altura, &dados->largura, 
         &dados->F_inicial, &dados->D, &dados->N);
 
+        dados->N_original=dados->N;
     dados->mapas = malloc(2 * sizeof(char***));
     //aloca espaço para dois mapas: presente e passado
     for (int t = 0; t < 2; t++) {
@@ -115,6 +116,8 @@ void gerarCelula(char* celula, int dificuldade) {
             if (r < 45) strcpy(celula, "000");            // 45% vazio
             else if (r < 65) strcpy(celula, "***");       // 20% obstáculo
             else if (r < 80) strcpy(celula, "AAA");       // 15% âncora
+            else if (r < 90) strcpy(celula, "BBB");       // 10% bônus regenerativo
+            else if (r < 95) strcpy(celula, "zzz");       // 5% um raio atinge Nikador 
             else {                                        // 20% monstros
                 monstro = (rand() % 30) + 1;              // força 001–030
                 sprintf(celula, "%03d", monstro);
@@ -125,6 +128,8 @@ void gerarCelula(char* celula, int dificuldade) {
             if (r < 35) strcpy(celula, "000");            // 35% vazio
             else if (r < 55) strcpy(celula, "***");       // 20% obstáculo
             else if (r < 70) strcpy(celula, "AAA");       // 15% âncora
+            else if (r < 80) strcpy(celula, "BBB");       // 10% bônus regenerativo
+            else if (r < 85) strcpy(celula, "zzz");       // 5% um raio atinge Nikador
             else {                                        // 30% monstros
                 monstro = (rand() % 300) + 1;             // força 001–300
                 sprintf(celula, "%03d", monstro);
@@ -135,6 +140,8 @@ void gerarCelula(char* celula, int dificuldade) {
             if (r < 25) strcpy(celula, "000");            // 25% vazio
             else if (r < 45) strcpy(celula, "***");       // 20% obstáculo
             else if (r < 60) strcpy(celula, "AAA");       // 15% âncora
+            else if (r < 70) strcpy(celula, "BBB");       // 10% bônus regenerativo
+            else if (r < 75) strcpy(celula, "zzz");       // 5% um raio atinge Nikador
             else {                                        // 40% monstros
                 monstro = (rand() % 999) + 1;             // força 001–999
                 sprintf(celula, "%03d", monstro);

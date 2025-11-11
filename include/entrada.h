@@ -19,6 +19,7 @@ typedef struct {
     int F_inicial; //força inicial
     int D; //descanso
     int N; //força de Nikador
+    int N_original; 
     char ****mapas; // mapas[2][altura][largura*4] (presente e passado)
 } DadosEntrada;
 

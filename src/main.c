@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "../include/entrada.h"
 #include "../include/Caminho.h"
 
+int benchmark =0;
+
 int main(int argc, char *argv[]) {
     DadosEntrada* mapa_atual = NULL;
+    srand(time(NULL));
     char nomeArquivoCarregado[200];
     int opcao = 0;
 
@@ -41,6 +45,7 @@ int main(int argc, char *argv[]) {
             printf("2. Gerar mapa automaticamente\n");
             printf("3. Exibir mapa atual\n");
             printf("4. Calcular melhor caminho\n");
+            printf("5. Modo Benchmark\n");
             printf("0. Sair\n");
             printf("Escolha uma opcao: ");
             fflush(stdout);
@@ -140,6 +145,99 @@ int main(int argc, char *argv[]) {
                     fflush(stdout); 
                     getchar(); 
                     break;
+                }
+
+                case 5: {
+                    int qntTestes;
+                    int arq;
+                    benchmark=1;
+                    printf("Modo benchmark\n");
+                    printf("Quantos tamanhos mapas deseja verificar?\n");
+                    scanf("%d",&qntTestes);
+                    getchar();
+                    
+                    FILE* arquivo_resultados = fopen("benchmark.txt", "a");
+                    if (arquivo_resultados == NULL) {
+                        printf(RED "Erro ao criar arquivo de resultados!\n" RESET);
+                        break;
+                    }
+
+                    fprintf(arquivo_resultados, "Dimensao - (largura e altura)\tTempo\n");
+
+                    for (int i = 0; i < qntTestes; i++) {
+                        printf("Teste numero %d\n",i+1);
+                        printf("1. Arquivo existente\n2. Gerar arquivo\n");
+                        scanf("%d",&arq);
+                        getchar(); // Limpa o buffer
+
+                        char nomeArquivo[200];
+                        DadosEntrada* mapa_teste = NULL;
+
+                        if (arq==1){
+                            printf("Digite o nome do arquivo: ");
+                            fflush(stdout);
+
+                            if (fgets(nomeArquivoCarregado, sizeof(nomeArquivoCarregado), stdin) != NULL) {
+                                // Remove o '\n' que o fgets captura
+                                nomeArquivoCarregado[strcspn(nomeArquivoCarregado, "\n")] = 0; 
+                            }
+
+
+                            if (mapa_teste != NULL) {
+                                liberarDados(mapa_teste);
+                                mapa_teste = NULL;
+                            }
+
+                            mapa_teste = lerArquivo(nomeArquivoCarregado);
+
+                        }else if (arq==2){
+                            char* arquivoGerado = gerarArquivoEntrada(); // chama função e recebe nome
+
+                            if (arquivoGerado != NULL) {
+                                strncpy(nomeArquivoCarregado, arquivoGerado, sizeof(nomeArquivoCarregado) - 1);
+                                nomeArquivoCarregado[sizeof(nomeArquivoCarregado) - 1] = '\0'; // Garante terminação nula
+
+                                if (mapa_teste != NULL) {
+                                    liberarDados(mapa_teste);
+                                    mapa_teste = NULL;
+                                }
+
+                                mapa_teste = lerArquivo(arquivoGerado);
+                            }
+                        }else{
+                            printf(RED "Opcaoo invalida!\n" RESET);
+                            continue;
+                        }
+                        if (mapa_teste == NULL) {
+                            printf(RED "Erro\n" RESET);
+                            continue;
+                        }
+                    
+                        clock_t inicio = clock();
+                        calcularCaminho(mapa_teste);
+                        clock_t fim = clock();
+                        
+                        double tempo = ((double)(fim - inicio)) / CLOCKS_PER_SEC;
+
+                        fprintf(arquivo_resultados, "%dx%d\t%.6f\n",  
+                                mapa_teste->largura, 
+                                mapa_teste->altura, 
+                                tempo);
+                        fflush(arquivo_resultados);
+
+
+                        printf(CYAN "\nTempo de execucao: %.6f seg\n" RESET, tempo);
+
+                        liberarDados(mapa_teste);
+
+                    }
+                        fclose(arquivo_resultados);
+
+                        printf("\nPressione Enter para voltar ao menu principal...");
+                        fflush(stdout); 
+                        getchar();
+                        benchmark=0; 
+                        break;
                 }
 
                 case 0:

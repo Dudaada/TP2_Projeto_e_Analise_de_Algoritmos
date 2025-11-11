@@ -6,6 +6,8 @@
 #include "../include/Caminho.h"
 
 #define INFINITO -999999999
+int flagNikador=0;
+extern int benchmark;
 //altura numero de linhas
 //largura numero de colunas
 //A Processar saida usa a melhor força que já temos para calcular a força que teriamos se nos movêssemos para a próxima célula
@@ -54,7 +56,11 @@ void ProcessarSaida(DadosEntrada* mapas, int altura, int largura,int mapa_Max[][
             custoGanho = mapas->D;
         } else if (strcmp(celulaDestino, "AAA") == 0) {
             custoGanho = 0;
-        } else {
+        } else if (strcmp(celulaDestino, "BBB") == 0) {
+            custoGanho = mapas->D * 2; //duplica o descanso
+        } else if (strcmp(celulaDestino, "zzz") == 0) {
+            custoGanho = 0;  
+        }else {
             // É inimigo, custo negativo pois é uma perda
             char *ptr;
             custoGanho = -strtol(celulaDestino, &ptr, 10);
@@ -187,6 +193,10 @@ void ImprimirCaminho(DadosEntrada* mapas, int altura, int largura,int linhaAnter
 
         caminhoLinhas[x] = linhaAtual;
         caminhoMapas[x] = mapaAtual; // mapa guardado
+
+        if (strcmp(mapas->mapas[mapaAtual][linhaAtual][x], "zzz") == 0) {
+            flagNikador = 1;
+        }
         
         if (x > 0) {
             int k_ant = mapaAnterior[mapaAtual][linhaAtual][x];
@@ -213,7 +223,22 @@ void RespostaFinal(int forcaFinal, int linhaFinal, int mapaFinal, int colunaFina
         printf("A calamidade de Nikador eh inevitavel\n");
     }
     else {
-        ImprimirCaminho(mapas, altura, largura, linhaAnterior, mapaAnterior, mapaFinal, linhaFinal, colunaFinal);
+        
+        if (benchmark==0) ImprimirCaminho(mapas, altura, largura, linhaAnterior, mapaAnterior, mapaFinal, linhaFinal, colunaFinal);
+        
+        int dano=0;
+        if (flagNikador == 1) {
+            int danoMax = mapas->N / 2;
+            if (danoMax < 0) danoMax = 0;
+            int dano = rand() % (danoMax + 1);
+
+            mapas->N -= dano;
+
+            printf("\nA magia invocada no caminho enfraqueceu Nikador em %d.\nNova forca de Nikador = %d\n\n", dano, mapas->N);
+            flagNikador = 0; 
+        }
+        
+        
         if(forcaFinal >= mapas->N){
             printf("A ruina de Nikador eh iminente\n");
         }
@@ -221,6 +246,7 @@ void RespostaFinal(int forcaFinal, int linhaFinal, int mapaFinal, int colunaFina
             printf("Sera necessario mais planejamento para parar a calamidade\n");
         }
     }
+    mapas->N = mapas->N_original;
 }
 
 /* * Nova funçao para o extra 2
