@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
                     scanf("%d",&qntTestes);
                     getchar();
                     
-                    FILE* arquivo_resultados = fopen("benchmark.txt", "a");
+                    FILE* arquivo_resultados = fopen("benchmark/benchmark.txt", "a");
                     if (arquivo_resultados == NULL) {
                         printf(RED "Erro ao criar arquivo de resultados!\n" RESET);
                         break;
@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
                         DadosEntrada* mapa_teste = NULL;
 
                         if (arq==1){
-                            printf("Digite o nome do arquivo: ");
+                            printf("Digite o nome do arquivo (ex: testes/mapa1.txt): ");
                             fflush(stdout);
 
                             if (fgets(nomeArquivoCarregado, sizeof(nomeArquivoCarregado), stdin) != NULL) {
