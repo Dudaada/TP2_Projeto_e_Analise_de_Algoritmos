@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
                     scanf("%d",&qntTestes);
                     getchar();
                     
-                    FILE* arquivo_resultados = fopen("benchmark/benchmark.txt", "a");
+                    FILE* arquivo_resultados = fopen("benchmark/benchmark.txt", "w");
                     if (arquivo_resultados == NULL) {
                         printf(RED "Erro ao criar arquivo de resultados!\n" RESET);
                         break;
