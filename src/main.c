@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
                         scanf("%d",&arq);
                         getchar(); // Limpa o buffer
 
-                        char nomeArquivo[200];
+
                         DadosEntrada* mapa_teste = NULL;
 
                         if (arq==1){

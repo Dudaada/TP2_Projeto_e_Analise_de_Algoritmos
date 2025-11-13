@@ -226,7 +226,7 @@ void RespostaFinal(int forcaFinal, int linhaFinal, int mapaFinal, int colunaFina
         
         if (benchmark==0) ImprimirCaminho(mapas, altura, largura, linhaAnterior, mapaAnterior, mapaFinal, linhaFinal, colunaFinal);
         
-        int dano=0;
+
         if (flagNikador == 1) {
             int danoMax = mapas->N / 2;
             if (danoMax < 0) danoMax = 0;
