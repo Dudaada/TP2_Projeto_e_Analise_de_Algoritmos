@@ -77,6 +77,10 @@ void imprimirMapas(DadosEntrada* d) {
                     printf(GREEN "000 " RESET);
                 else if (strcmp(cel, "AAA") == 0)
                     printf(YELLOW "AAA " RESET);
+                else if (strcmp(cel, "BBB") == 0)
+                        printf(MAGENTA " %s " RESET, cel);
+                else if (strcmp(cel, "zzz") == 0)
+                    printf(CYAN " %s " RESET, cel);
                 else
                     printf(WHITE "%s " RESET, cel);
             }
